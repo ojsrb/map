@@ -42,7 +42,35 @@
     {#each groups as group}
         <button class="bg-gray-100 m-5 rounded-lg p-3 flex flex-row w-72" on:click={() => {group.displaying= !group.displaying}}>
             <p style="color: {group.color}" class="mr-[9rem]">{group.name}</p>
-            <img src={group.displaying ? triangledown : triangleright } alt="triangle" class="ml-4 w-4"/>
+            {#if group.displaying === true}
+                <svg width="800px" height="800px" viewBox="0 -0.5 17 17" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="si-glyph si-glyph-triangle-down">
+
+                    <title>1237</title>
+
+                    <defs>
+
+                    </defs>
+                    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                        <path d="M10.106,12.69 C9.525,13.27 8.584,13.27 8.002,12.69 L1.561,6.246 C0.979,5.665 0.722,4.143 2.561,4.143 L15.549,4.143 C17.45,4.143 17.131,5.664 16.549,6.246 L10.106,12.69 L10.106,12.69 Z" fill="#434343" class="si-glyph-fill">
+
+                        </path>
+                    </g>
+                </svg>
+            {/if}
+            {#if group.displaying === false}
+                <svg width="800px" height="800px" viewBox="0 -0.5 17 17" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="si-glyph si-glyph-triangle-right">
+
+                <title>1234</title>
+
+                <defs>
+
+                </defs>
+                <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                    <path d="M6.113,15.495 C5.531,16.076 4.01,16.395 4.01,14.494 L4.01,1.506 C4.01,-0.333 5.531,-0.076 6.113,0.506 L12.557,6.948 C13.137,7.529 13.137,8.47 12.557,9.052 L6.113,15.495 L6.113,15.495 Z" fill="#434343" class="si-glyph-fill">
+
+                    </path>
+                </g>
+                </svg>
         </button>
         {#if group.displaying}
             <div>
