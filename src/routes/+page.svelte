@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { MapLibre, NavigationControl, ScaleControl, GlobeControl, Marker, Popup, Terrain} from 'svelte-maplibre-gl';
+    import { MapLibre, NavigationControl, ScaleControl, GlobeControl, Marker, Popup, Terrain, Sky, RasterDEMTileSource, TerrainControl, Light, HillshadeLayer, GeolocateControl} from 'svelte-maplibre-gl';
     import maplibregl from "maplibre-gl";
 
     const triangleright = "src/lib/triangle-right.svg"
@@ -19,31 +19,36 @@
 
     let center = new maplibregl.LngLat(-106.07, 39.47)
 
-    let groups = [
-        {
-            name: "Bucket List",
-            color: "#ff0000",
-            displaying: true,
-            points: [
-                {
-                    name: "test",
-                    lnglat: new  maplibregl.LngLat(0, 0)
-                },
-                {
-                    name: "test",
-                    lnglat: new  maplibregl.LngLat(0, 0)
-                }
-            ]
-        }
+    let groups: object[] = [
     ]
+
+    function createGroup(name: String, color: String) {
+        groups.push({
+            name: name,
+            color: color,
+            displaying: true,
+            points: []
+        })
+        groups = groups
+    }
 
     let makingGroup = false
 
     let newGroup = {
         name: "",
-        color: "",
-        displaying: true,
-        points: []
+        color: ""
+    }
+
+    function createPoint(group: String, name: String, lngLat) {
+        groups.forEach((g) => {
+            if (g.name === newPoint.group) {
+                g.points.push({
+                    name: newPoint.name,
+                    lnglat: newPoint.lnglat,
+                })
+            }
+        })
+        groups = groups
     }
 
     const colors = [
@@ -97,9 +102,11 @@
                 </select>
             </div>
             <button class="m-1 w-full text-blue-400 bg-gray-200 p-2 rounded-lg" onclick={() => {
-                groups.push(newGroup)
+                createGroup(newGroup.name, newGroup.color)
                 groups = groups
+
                 makingGroup = false
+                console.log(groups)
             }}>Add</button>
         {/if}
     </div>
@@ -120,9 +127,41 @@
 
         }}
 >
+    <Light anchor="map" />
+    <RasterDEMTileSource
+            id="terrain"
+            tiles={['https://api.maptiler.com/tiles/terrain-rgb-v2/{z}/{x}/{y}.webp?key=CCQXFyWMI7rany1Z6XQP']}
+            minzoom={0}
+            maxzoom={12}
+            attribution="<a href='https://earth.jaxa.jp/en/data/policy/'>AW3D30 (JAXA)</a>"
+    >
+        <TerrainControl position="top-right" />
+        <Terrain exaggeration={1.0}/>
+    </RasterDEMTileSource>
+    <!-- Hillshade -->
+    <RasterDEMTileSource
+            tiles={['https://api.maptiler.com/tiles/terrain-rgb-v2/{z}/{x}/{y}.webp?key=CCQXFyWMI7rany1Z6XQP']}
+            minzoom={0}
+            maxzoom={12}
+            attribution="<a href='https://earth.jaxa.jp/en/data/policy/'>AW3D30 (JAXA)</a>"
+    >
+        <HillshadeLayer
+                paint={{
+        'hillshade-method': 'standard',
+        'hillshade-exaggeration': 0.3,
+        'hillshade-shadow-color': '#004050',
+        'hillshade-accent-color': '#aaff00',
+        'hillshade-highlight-color': '#ffffff',
+        'hillshade-illumination-anchor': 'map',
+        'hillshade-illumination-altitude': 45.0,
+        'hillshade-illumination-direction': 0.0
+      }}
+        />
+    </RasterDEMTileSource>
     <NavigationControl />
     <ScaleControl />
     <GlobeControl />
+    <GeolocateControl />
     {#each groups as group}
         {#if group.displaying}
             {#each group.points as point}
@@ -142,15 +181,7 @@
     <Popup class="p-2" lnglat={popup.lnglat} bind:open={popup.enabled} onclose={() => {
         if (newPoint.name !== "" && newPoint.group !== "") {
             popup.enabled = false
-            for (let i = 0; i < groups.length; i++) {
-                if (groups[i].name === newPoint.group) {
-                    groups[i].points.push({
-                        name: newPoint.name,
-                        lnglat: newPoint.lnglat,
-                    })
-                    groups[i].points = groups[i].points
-                }
-            }
+            createPoint(newPoint.group, newPoint.name, newPoint.lnglat)
             newPoint.name = ""
             newPoint.lnglat = new  maplibregl.LngLat(0, 0)
             newPoint.group = ""
